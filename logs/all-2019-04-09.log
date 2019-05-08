@@ -1,0 +1,108 @@
+[2019-04-09 09:23:00,173] [base.py:170] [base:get_response] [WARNING]- Not Found: /favicon.ico
+[2019-04-09 10:32:54,006] [base.py:256] [base:handle_uncaught_exception] [ERROR]- Internal Server Error: /case/
+Traceback (most recent call last):
+  File "C:\anaconda3\envs\kktest\lib\site-packages\django\core\handlers\base.py", line 132, in get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\djcps\Desktop\我的django\kkTest\outeruser\views.py", line 21, in wrapper
+    return func(request, *args,** kwargs)
+  File "C:\Users\djcps\Desktop\我的django\kkTest\outeruser\views.py", line 531, in case
+    contacts = paginator.page(page)
+AttributeError: 'NoneType' object has no attribute 'page'
+[2019-04-09 12:58:44,573] [base.py:256] [base:handle_uncaught_exception] [ERROR]- Internal Server Error: /case/
+Traceback (most recent call last):
+  File "C:\anaconda3\envs\kktest\lib\site-packages\django\core\urlresolvers.py", line 394, in urlconf_module
+    return self._urlconf_module
+AttributeError: 'RegexURLResolver' object has no attribute '_urlconf_module'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\anaconda3\envs\kktest\lib\site-packages\django\core\handlers\base.py", line 119, in get_response
+    resolver_match = resolver.resolve(request.path_info)
+  File "C:\anaconda3\envs\kktest\lib\site-packages\django\core\urlresolvers.py", line 366, in resolve
+    for pattern in self.url_patterns:
+  File "C:\anaconda3\envs\kktest\lib\site-packages\django\core\urlresolvers.py", line 402, in url_patterns
+    patterns = getattr(self.urlconf_module, "urlpatterns", self.urlconf_module)
+  File "C:\anaconda3\envs\kktest\lib\site-packages\django\core\urlresolvers.py", line 396, in urlconf_module
+    self._urlconf_module = import_module(self.urlconf_name)
+  File "C:\anaconda3\envs\kktest\lib\importlib\__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+  File "<frozen importlib._bootstrap>", line 978, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 961, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 950, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 655, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 678, in exec_module
+  File "<frozen importlib._bootstrap>", line 205, in _call_with_frames_removed
+  File "C:\Users\djcps\Desktop\我的django\kkTest\kkTest\urls.py", line 18, in <module>
+    import outeruser.urls
+  File "C:\Users\djcps\Desktop\我的django\kkTest\outeruser\urls.py", line 2, in <module>
+    from outeruser import views
+  File "C:\Users\djcps\Desktop\我的django\kkTest\outeruser\views.py", line 13, in <module>
+    logger = logging.basicConfig().setLevel(logging.DEBUG)
+AttributeError: 'NoneType' object has no attribute 'setLevel'
+[2019-04-09 14:39:11,364] [base.py:256] [base:handle_uncaught_exception] [ERROR]- Internal Server Error: /case
+Traceback (most recent call last):
+  File "C:\anaconda3\envs\kktest\lib\site-packages\django\core\handlers\base.py", line 132, in get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\djcps\Desktop\我的django\kkTest\outeruser\views.py", line 23, in wrapper
+    return func(request, *args,** kwargs)
+  File "C:\Users\djcps\Desktop\我的django\kkTest\outeruser\views.py", line 528, in case
+    api = Api.objects.get(apiid=apiid)
+  File "C:\anaconda3\envs\kktest\lib\site-packages\django\db\models\manager.py", line 127, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+  File "C:\anaconda3\envs\kktest\lib\site-packages\django\db\models\query.py", line 325, in get
+    clone = self.filter(*args, **kwargs)
+  File "C:\anaconda3\envs\kktest\lib\site-packages\django\db\models\query.py", line 679, in filter
+    return self._filter_or_exclude(False, *args, **kwargs)
+  File "C:\anaconda3\envs\kktest\lib\site-packages\django\db\models\query.py", line 697, in _filter_or_exclude
+    clone.query.add_q(Q(*args, **kwargs))
+  File "C:\anaconda3\envs\kktest\lib\site-packages\django\db\models\sql\query.py", line 1304, in add_q
+    clause, require_inner = self._add_q(where_part, self.used_aliases)
+  File "C:\anaconda3\envs\kktest\lib\site-packages\django\db\models\sql\query.py", line 1332, in _add_q
+    allow_joins=allow_joins, split_subq=split_subq,
+  File "C:\anaconda3\envs\kktest\lib\site-packages\django\db\models\sql\query.py", line 1203, in build_filter
+    condition = self.build_lookup(lookups, col, value)
+  File "C:\anaconda3\envs\kktest\lib\site-packages\django\db\models\sql\query.py", line 1096, in build_lookup
+    return final_lookup(lhs, rhs)
+  File "C:\anaconda3\envs\kktest\lib\site-packages\django\db\models\lookups.py", line 96, in __init__
+    self.rhs = self.get_prep_lookup()
+  File "C:\anaconda3\envs\kktest\lib\site-packages\django\db\models\lookups.py", line 134, in get_prep_lookup
+    return self.lhs.output_field.get_prep_lookup(self.lookup_name, self.rhs)
+  File "C:\anaconda3\envs\kktest\lib\site-packages\django\db\models\fields\__init__.py", line 727, in get_prep_lookup
+    return self.get_prep_value(value)
+  File "C:\anaconda3\envs\kktest\lib\site-packages\django\db\models\fields\__init__.py", line 985, in get_prep_value
+    return int(value)
+ValueError: invalid literal for int() with base 10: '请选择'
+[2019-04-09 14:39:25,366] [base.py:256] [base:handle_uncaught_exception] [ERROR]- Internal Server Error: /case
+Traceback (most recent call last):
+  File "C:\anaconda3\envs\kktest\lib\site-packages\django\core\handlers\base.py", line 132, in get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\djcps\Desktop\我的django\kkTest\outeruser\views.py", line 23, in wrapper
+    return func(request, *args,** kwargs)
+  File "C:\Users\djcps\Desktop\我的django\kkTest\outeruser\views.py", line 528, in case
+    api = Api.objects.get(apiid=apiid)
+  File "C:\anaconda3\envs\kktest\lib\site-packages\django\db\models\manager.py", line 127, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+  File "C:\anaconda3\envs\kktest\lib\site-packages\django\db\models\query.py", line 325, in get
+    clone = self.filter(*args, **kwargs)
+  File "C:\anaconda3\envs\kktest\lib\site-packages\django\db\models\query.py", line 679, in filter
+    return self._filter_or_exclude(False, *args, **kwargs)
+  File "C:\anaconda3\envs\kktest\lib\site-packages\django\db\models\query.py", line 697, in _filter_or_exclude
+    clone.query.add_q(Q(*args, **kwargs))
+  File "C:\anaconda3\envs\kktest\lib\site-packages\django\db\models\sql\query.py", line 1304, in add_q
+    clause, require_inner = self._add_q(where_part, self.used_aliases)
+  File "C:\anaconda3\envs\kktest\lib\site-packages\django\db\models\sql\query.py", line 1332, in _add_q
+    allow_joins=allow_joins, split_subq=split_subq,
+  File "C:\anaconda3\envs\kktest\lib\site-packages\django\db\models\sql\query.py", line 1203, in build_filter
+    condition = self.build_lookup(lookups, col, value)
+  File "C:\anaconda3\envs\kktest\lib\site-packages\django\db\models\sql\query.py", line 1096, in build_lookup
+    return final_lookup(lhs, rhs)
+  File "C:\anaconda3\envs\kktest\lib\site-packages\django\db\models\lookups.py", line 96, in __init__
+    self.rhs = self.get_prep_lookup()
+  File "C:\anaconda3\envs\kktest\lib\site-packages\django\db\models\lookups.py", line 134, in get_prep_lookup
+    return self.lhs.output_field.get_prep_lookup(self.lookup_name, self.rhs)
+  File "C:\anaconda3\envs\kktest\lib\site-packages\django\db\models\fields\__init__.py", line 727, in get_prep_lookup
+    return self.get_prep_value(value)
+  File "C:\anaconda3\envs\kktest\lib\site-packages\django\db\models\fields\__init__.py", line 985, in get_prep_value
+    return int(value)
+ValueError: invalid literal for int() with base 10: '请选择'

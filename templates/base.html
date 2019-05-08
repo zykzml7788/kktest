@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<!-- saved from url=(0057)http://www.jq22.com/demo/bootstrap-mb20150906/tables.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="">
+<meta name="author" content="">
+<title>{% block title %}{% endblock %}</title>
+{% load static %}
+<link href="{% static 'admin/css/bootstrap.css' %}" rel="stylesheet">
+<link href="{% static 'admin/css/sb-admin.css' %}" rel="stylesheet">
+<script src="http://code.jquery.com/jquery-latest.js"></script>
+<script src="{% static 'assets/js/commons.js' %}"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/css/bootstrap-select.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/js/bootstrap-select.min.js"></script>
+
+    <style type="text/css">
+        #success_alert {
+            color:green;
+            text-align:center;
+            width:300px;
+            position: absolute;
+            z-index:999999;
+            left:40%;
+            top:10%;
+        }
+
+        #fail_alert {
+            color:red;
+            text-align:center;
+            width:300px;
+            position: absolute;
+            z-index:999999;
+            left:40%;
+            top:10%;
+        }
+
+
+    </style>
+{% block css %}{% endblock %}
+ {% block js %}{% endblock %}
+</head>
+<body style="">
+<div id="wrapper">
+
+<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+
+<div class="navbar-header">
+<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+<span class="sr-only">Toggle navigation</span>
+<span class="icon-bar"></span>
+<span class="icon-bar"></span>
+<span class="icon-bar"></span>
+</button>
+    <a class="navbar-brand" href="http://www.jq22.com/demo/bootstrap-mb20150906/index.html"><i class="glyphicon glyphicon-ok-sign"></i><b>楷楷接口测试平台</b></a>
+</div>
+
+<div class="collapse navbar-collapse navbar-ex1-collapse">
+<ul class="nav navbar-nav side-nav">
+ <li><li><a href="/homepage/"><i class="glyphicon glyphicon-bookmark"></i> 主页</a></li></li>
+<li><a href="/selectProject/"><i class="glyphicon glyphicon-align-justify"></i> 项目管理</a></li>
+<li><a href="/module/"><i class="glyphicon glyphicon-list-alt"></i> 模块管理</a></li>
+<li><a href="/api/"><i class="glyphicon glyphicon-th"></i> 接口管理</a></li>
+<li><a href="/case/"><i class="glyphicon glyphicon-th-large"></i> 用例管理</a></li>
+<li><a href="/casesuite/"><i class="glyphicon glyphicon-envelope"></i> 用例集管理</a></li>
+<li><a href=""><i class="glyphicon glyphicon-road"></i> 任务管理</a></li>
+<li><a href=""><i class="glyphicon glyphicon-print"></i> 执行结果管理</a></li>
+<li><a href=""><i class="glyphicon glyphicon-adjust"></i> 报表管理</a></li>
+<li class="dropdown">
+<a href="" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-caret-square-o-down"></i> 配置管理 <b class="caret"></b></a>
+<ul class="dropdown-menu">
+<li><a href="">全局变量配置</a></li>
+<li><a href="">SQL管理配置</a></li>
+<li><a href="">数据库信息配置</a></li>
+</ul>
+</li>
+</ul>
+<ul class="nav navbar-nav navbar-right navbar-user">
+<li class="dropdown messages-dropdown">
+<a href="http://www.jq22.com/demo/bootstrap-mb20150906/tables.html#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-envelope"></i> Messages <span class="badge">7</span> <b class="caret"></b></a>
+<ul class="dropdown-menu">
+<li class="dropdown-header">7 New Messages</li>
+<li class="message-preview">
+<a href="http://www.jq22.com/demo/bootstrap-mb20150906/tables.html#">
+<span class="avatar"><img src="{% static 'admin/css/50x50'%}"></span>
+<span class="name">{{username}}</span>
+<span class="message">Hey there, I wanted to ask you something...</span>
+<span class="time"><i class="fa fa-clock-o"></i> 4:34 PM</span>
+</a>
+</li>
+<li class="divider"></li>
+<li class="message-preview">
+<a href="http://www.jq22.com/demo/bootstrap-mb20150906/tables.html#">
+<span class="avatar"><img src="{% static 'admin/css/50x50'%}"></span>
+<span class="name">John Smith:</span>
+<span class="message">Hey there, I wanted to ask you something...</span>
+<span class="time"><i class="fa fa-clock-o"></i> 4:34 PM</span>
+</a>
+</li>
+<li class="divider"></li>
+<li class="message-preview">
+<a href="http://www.jq22.com/demo/bootstrap-mb20150906/tables.html#">
+ <span class="avatar"><img src="{% static 'admin/css/50x50'%}"></span>
+<span class="name">John Smith:</span>
+<span class="message">Hey there, I wanted to ask you something...</span>
+<span class="time"><i class="fa fa-clock-o"></i> 4:34 PM</span>
+</a>
+</li>
+<li class="divider"></li>
+<li><a href="http://www.jq22.com/demo/bootstrap-mb20150906/tables.html#">View Inbox <span class="badge">7</span></a></li>
+</ul>
+</li>
+<li class="dropdown alerts-dropdown">
+<a href="http://www.jq22.com/demo/bootstrap-mb20150906/tables.html#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-bell"></i> Alerts <span class="badge">3</span> <b class="caret"></b></a>
+<ul class="dropdown-menu">
+<li><a href="http://www.jq22.com/demo/bootstrap-mb20150906/tables.html#">Default <span class="label label-default">Default</span></a></li>
+<li><a href="http://www.jq22.com/demo/bootstrap-mb20150906/tables.html#">Primary <span class="label label-primary">Primary</span></a></li>
+<li><a href="http://www.jq22.com/demo/bootstrap-mb20150906/tables.html#">Success <span class="label label-success">Success</span></a></li>
+<li><a href="http://www.jq22.com/demo/bootstrap-mb20150906/tables.html#">Info <span class="label label-info">Info</span></a></li>
+<li><a href="http://www.jq22.com/demo/bootstrap-mb20150906/tables.html#">Warning <span class="label label-warning">Warning</span></a></li>
+<li><a href="http://www.jq22.com/demo/bootstrap-mb20150906/tables.html#">Danger <span class="label label-danger">Danger</span></a></li>
+<li class="divider"></li>
+<li><a href="http://www.jq22.com/demo/bootstrap-mb20150906/tables.html#">View All</a></li>
+</ul>
+</li>
+<li class="dropdown user-dropdown">
+<a href="" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user"></i> 欢迎你,{{username}} <b class="caret"></b></a>
+<ul class="dropdown-menu">
+<li class="divider"></li>
+<li><a href="/logout"><i class="fa fa-power-off"></i> 注销用户 </a></li>
+</ul>
+</li>
+</ul>
+</div>
+</nav>
+<div id="page-wrapper">
+    <div id="success_alert" class="alert alert-dismissable alert-success" style="display:none;z-index:99999999;">
+    <span id="success_msg"></span>
+    </div>
+    <div id="fail_alert" class="alert alert-dismissable alert-danger" style="display:none;z-index:99999999;">
+    <span id="fail_msg"></span>
+    </div>
+    {% block content %}
+
+    {% endblock %}
+</div>
+
+    <script>
+
+        /*
+            展示成功信息
+        */
+        function showSuccessMsg(msg){
+            $("#success_msg").text(msg);
+            $("#success_alert").slideDown(200).delay(1500).slideUp(200);
+
+        }
+
+        /*
+            展示失败信息
+        */
+        function showFailMsg(msg){
+            $("#fail_msg").text(msg);
+            $("#fail_alert").slideDown(200).delay(1500).slideUp(200);
+
+        }
+
+        /*
+            等待方法
+        */
+        function sleep(numberMillis) {    
+            var now = new Date();    
+            var exitTime = now.getTime() + numberMillis;   
+            while (true) { 
+            now = new Date();       
+            if (now.getTime() > exitTime) 
+            return;    
+        } 
+        }
+
+        //描述鼠标悬停显示全部内容
+        $(".td").hover(function(){
+            $(this).attr("title",$(this).text());
+            },function(){
+            $(this).removeAttr("title");
+        });
+    </script>
+<script src="{% static 'admin/js/jquery-1.10.2.js.下载'%}"></script>
+<script src="{% static 'admin/js/bootstrap.js.下载'%}"></script>
+<script src="{% static 'admin/js/jquery.tablesorter.js.下载'%}"></script>
+<script src="{% static 'admin/js/tables.js.下载'%}"></script>
+
+</body></html>

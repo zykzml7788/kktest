@@ -1,0 +1,403 @@
+{% extends "base.html" %}
+{% block title %}模块管理{% endblock %}
+{% load static %}
+
+{% block css %}
+<style type="text/css">
+
+
+
+    .td{
+        width:345px;
+        height:20px;
+        font-size:0.1em;
+        word-break:keep-all;/* 不换行 */
+        white-space:nowrap;/* 不换行 */
+        overflow:hidden;/* 内容超出宽度时隐藏超出部分的内容 */
+        text-overflow:ellipsis;/* 当对象内文本溢出时显示省略标记(...) ；需与overflow:hidden;一起使用。*/
+    }
+    /*背景层*/
+        #popLayer {
+            overflow-y: hidden;
+            display: none;
+            background-color: #B3B3B3;
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 10;
+            -moz-opacity: 0.8;
+            opacity:.80;
+            filter: alpha(opacity=80);/* 只支持IE6、7、8、9 */
+        }
+
+        /*弹出层*/
+        #addProjectPage {
+            border-radius:25px;
+            display: none;
+            background-color: #FFFFFF;
+            z-index: 11;
+            width: 500px;
+            height: 500px;
+            position:fixed;
+            top:0;
+            right:0;
+            left:0;
+            bottom:0;
+            margin:auto;
+            font-size:1vh;
+            overflow:auto;
+        }
+
+        #addProjectPage .close{
+            text-align: right;
+            margin-right: 5px;
+            background-color: #F8F8F8;
+        }
+</style>
+{% endblock %}
+
+{% block content %}
+<h2 style="font-weight:bold;">模块管理</h2>
+<div class="table-responsive"></div>
+<div class="form-group">
+<div style="float:left;">
+<div>
+    <label>项目名称</label>
+    <select class="form-control" id="projectname_select" style="width:200px;margin:0 2% 5px 0;">
+    <option selected="selected">请选择</option>
+    {% for p in projects %}
+    <option value="{{p.projectname}}">{{p.projectname}}</option>
+    {% endfor %}
+</select>
+</div>
+<div>
+    <label>模块名称</label>
+    <input class="form-control" name="modulename" id="modulename_search" placeholder="请输入模块名称" style="width:300px;" value="{% if modulename %}{{modulename}}{% endif %}">
+</div>
+<button type="button" id="select" class="btn btn-primary" onclick="selectModule();" style="margin:10px 5px 10px 0" >查询</button>
+<button type="button" id="add" class="btn btn-primary" onclick="showModulePage();" style="margin:10px 5px 10px 0">新增</button>
+</div>
+
+
+
+    <table class="table table-bordered" style="margin:10px;table-layout:fixed;">
+        <thead style="background-color: #B8B8B8; ">
+            <tr>
+                <th style="width:50px;">序号</th>
+                <th>模块名称 <i class="fa fa-sort"></i></th>
+                <th>所属项目</th>
+                <th>开发负责人 <i class="fa fa-sort"></i></th>
+                <th>测试负责人 </th>
+                <th>创建时间</th>
+                <th>修改时间</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+    <tbody>
+    {% if contacts %}
+        {% for m in contacts %}
+            <tr>
+                <td id="td1" style="text-align:center;">{{ contacts.start_index|add:forloop.counter|add:-1 }}</td>
+                <td class="td">{{m.modulename}}</td>
+                <td class="td">{{m.project.projectname}}</td>
+                <td class="td">{{m.devleader}}</td>
+                <td class="td">{{m.testleader}}</td>
+                <td class="td">{{m.createtime}}</td>
+                <td class="td">{{m.updatetime}}</td>
+                <td class="td"><a href="javascript:void(0)" onclick="showEditPage('{{m.moduleid}}','{{m.project.projectname}}','{{m.modulename}}');">编辑</a> <a href="javascript:void(0)" onclick="deleteModule('{{m.modulename}}');">删除</a></td>
+            </tr>
+        {% endfor %}
+    {% endif %}
+    </tbody>
+
+</table>
+{% if not contacts%}
+        <div style="text-align:center;">空</div>
+    {% endif %}
+<div id="popLayer"></div>
+<div id="addProjectPage">
+    <div class="content">
+        <div class="inner" style="margin:20px;">
+            <h3 id="h3" style="font-weight:bold;">新增模块</h3><br>
+            所属项目:<input class="form-control" id="projectname" name="projectname"  style="width:300px;" maxlength="30" readonly="readonly"><br>
+            模块名称:<input class="form-control" id="modulename" name="modulename"  style="width:300px;" placeholder="请输入模块名称" maxlength="10"><br>
+            项目开发负责人:<input class="form-control" id="devleader" name="devleader" placeholder="请输入项目开发负责人" style="width:300px;" maxlength="10"><br>
+            项目测试负责人:<input class="form-control" id="testleader" name="testleader" placeholder="请输入项目测试负责人" style="width:300px;" maxlength="10"><br>
+
+        <div style="text-align:center;margin:30px;">
+            <button type="button" id="close" class="btn btn-default btn-lg" onclick="closeBox();">取消</button>
+            <button type="button" id="add_btn" class="btn btn-primary btn-lg" onclick="addModule();">新增</button>
+        </div>
+    </div>
+    </div>
+</div>
+<div id="page" style="text-align:center;">
+<ul class="pagination">
+
+    {% if contacts.has_previous %}
+        <li><a href="module?projectname={{projectname}}&modulename={{modulename}}&page={{contacts.previous_page_number}}"><<</a></li>
+    {% else %}
+        <li class="disabled"><a href="#"><<</a></li>
+    {% endif %}
+
+{% for pg in contacts.paginator.page_range %}
+
+    {% if contacts.number == pg %}
+        <li class="active"><a href="/module?projectname={{projectname}}&modulename={{modulename}}&page={{pg}}">{{pg}}</a></li>
+    {% elif pg %}
+    <li><a href="/module?projectname={{projectname}}&modulename={{modulename}}&page={{pg}}">{{pg}}</a></li>
+    {% else %}
+    <li><a href="javascript:void(0);">1</a></li>
+    {% endif %}
+{% endfor %}
+
+    {% if contacts.has_next %}
+        <li><a href="/module?projectname={{projectname}}&modulename={{modulename}}&page={{contacts.next_page_number}}">>></a></li>
+    {% else %}
+        <li class="disabled"><a href="#">>></a></li>
+    {% endif %}
+</ul>
+</div>
+
+    <script>
+
+    /*
+        页面加载初始化函数
+
+    */
+$(document).ready(function(){
+    if("{{projectname}}"=="None"){
+        $("#projectname_select").val("请选择");
+    }else{
+        $("#projectname_select").val("{{projectname}}");
+    }
+
+
+});
+
+
+
+
+/*弹出添加界面*/
+function showModulePage() {
+        var projectname=$("#projectname_select").val();
+
+        if(projectname=="请选择"){
+            showFailMsg("请选择项目后新增！");
+        }else{
+
+            $("#projectname").val(projectname);
+            $("#modulename").val("");
+            $("#devleader").val("");
+            $("#testleader").val("");
+            $("#h3").text("新增模块");
+            $("#add_btn").val("新增");
+            $("#add_btn").text("新增");
+            $("#add_btn").attr("onclick","addModule();")
+            $("#addProjectPage").fadeIn(300);
+            $("#popLayer").fadeIn(300);
+            $("#modulename").removeAttr("readonly");
+            $('body').css({
+    　　      "overflow-x":"hidden",
+    　　      "overflow-y":"hidden"
+            });
+        }
+
+
+
+
+}
+
+/*关闭页面*/
+function closeBox() {
+        $("#addProjectPage").fadeOut(300);
+        $("#popLayer").fadeOut(300);
+        $('body').css({
+　　      "overflow-x":"auto",
+　　      "overflow-y":"auto"
+        });
+}
+/*
+
+    新增模块
+
+    */
+function addModule(){
+
+    var projectname=$("#projectname").val();
+    var modulename=$("#modulename").val();
+    var devleader=$("#devleader").val();
+    var testleader=$("#testleader").val();
+
+
+    $.ajax(
+        {
+            type:"POST",
+            DataType:"json",
+            contentType:"application/json;charset=utf-8",
+            url:"/addModule/",
+            data:JSON.stringify({"projectname":projectname,"modulename":modulename,"devleader":devleader,"testleader":testleader}),
+            success:function(result){
+                console.log(result);
+                console.log(result.code)
+                if(result.code=="100000"){
+                    showSuccessMsg("添加成功！！");
+                    setTimeout(function(){
+                        window.location.href="/module?projectname="+projectname;
+                    },1000);
+                }else if(result.code=="100001"){
+                    showFailMsg("请检查是否有未填项！");
+                }else if(result.code=="100002"){
+                    showFailMsg("该模块已存在，不允许重复添加！");
+                }else{
+                    showFailMsg("操作失败");
+                }
+            }
+        }
+    );
+}
+
+/*
+    查询项目
+
+    */
+function selectModule(){
+    var projectname=$("#projectname_select").val();
+    var modulename=$("#modulename_search").val();
+    window.location.href="/module?projectname="+projectname+"&modulename="+modulename;
+
+}
+
+
+/*
+    删除项目
+*/
+function deleteModule(modulename){
+
+    var r = confirm("是否要删除该记录");
+    if(r){
+        $.ajax(
+        {
+            type:"POST",
+            DataType:"json",
+            contentType:"application/json;charset=utf-8",
+            url:"/deleteModule/",
+            data:JSON.stringify({"modulename":modulename}),
+            success:function(result){
+                console.log(result);
+                console.log(result.code)
+                if(result.code=="100000"){
+                    showSuccessMsg("删除成功！")
+                    setTimeout(function(){
+                            window.location.reload();
+                        },1000);
+                    }else if(result.code=="100001"){
+                        showFailMsg("模块名称不允许为空！");
+                    }else{
+                        showFailMsg("请检查是否有关联接口！")
+                        setTimeout(function(){
+                            window.location.reload();
+                        },1000);
+
+                    }
+
+
+          }
+        }
+    );
+    }
+
+}
+
+/*
+    展示编辑界面
+*/
+function showEditPage(moduleid,projectname,modulename){
+
+    $("#addProjectPage").fadeIn(300);
+    $("#popLayer").fadeIn(300);
+    $("#projectname").attr("readonly","readonly");
+    $("#h3").text("编辑模块");
+    $("#add_btn").text("保存");
+    $("#add_btn").val("保存");
+    $("#add_btn").attr("onclick","editModule('"+moduleid+"');")
+    console.log(projectname);
+
+
+    $.ajax(
+        {
+            type:"GET",
+            DataType:"json",
+            contentType:"application/x-www-form-urlencoded;charset=utf-8",
+            url:"/getModuleMsg/",
+            data:{"modulename":modulename},
+            success:function(result){
+                console.log(result);
+                console.log(result.data[0].fields);
+                $("#projectname").val(projectname);
+                $("#modulename").val(modulename);
+                $("#devleader").val(result.data[0].fields.devleader);
+                $("#testleader").val(result.data[0].fields.testleader);
+            }
+
+        }
+    );
+    $('body').css({
+　　      "overflow-x":"hidden",
+　　      "overflow-y":"hidden"
+        });
+}
+
+/*编辑模块*/
+function editModule(moduleid){
+
+    var projectname=$("#projectname").val();
+    var modulename=$("#modulename").val();
+    var devleader=$("#devleader").val();
+    var testleader=$("#testleader").val();
+    if(!projectname || !modulename || !devleader || !testleader){
+        showFailMsg("各项参数不允许为空！");
+    }else{
+        $.ajax(
+            {
+                type:"POST",
+                DataType:"json",
+                contentType:"application/json;charset=utf-8",
+                url:"/editModule/",
+                data:JSON.stringify({"moduleid":moduleid,"projectname":projectname,"modulename":modulename,"devleader":devleader,"testleader":testleader}),
+                success:function(result){
+                    console.log(result);
+                    if(result.code==100000){
+                        showSuccessMsg("保存成功");
+                        closeBox();
+                        window.location.reload();
+                    }else if(result.code==100001){
+                        showFailMsg("请检查是否有未填项");
+
+                    }else if(result.code==100002){
+                        showFailMsg("未找到对应项目");
+
+                    }else if(result.code==100003){
+                        showFailMsg("该模块名称已存在！");
+
+                    }else{
+                        showFailMsg("保存失败，后台出错啦~~");
+                    }
+
+                }
+
+            }
+        );
+    }
+
+
+
+}
+
+
+
+</script>
+{% endblock %}
+

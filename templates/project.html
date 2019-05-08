@@ -1,0 +1,360 @@
+{% extends "base.html" %}
+{% block title %}项目管理{% endblock %}
+{% load static %}
+
+
+{% block css %}
+<style type="text/css">
+    .td{
+        width:345px;
+        height:20px;
+        font-size:0.1em;
+        word-break:keep-all;/* 不换行 */
+        white-space:nowrap;/* 不换行 */
+        overflow:hidden;/* 内容超出宽度时隐藏超出部分的内容 */
+        text-overflow:ellipsis;/* 当对象内文本溢出时显示省略标记(...) ；需与overflow:hidden;一起使用。*/
+
+    }
+    /*背景层*/
+        #popLayer {
+            overflow-y: hidden;
+            display: none;
+            background-color: #B3B3B3;
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 10;
+            -moz-opacity: 0.8;
+            opacity:.80;
+            filter: alpha(opacity=80);/* 只支持IE6、7、8、9 */
+        }
+
+        /*弹出层*/
+        #addProjectPage {
+            border-radius:25px;
+            display: none;
+            background-color: #FFFFFF;
+            z-index: 99999;
+            width: 550px;
+            height: 720px;
+            position:fixed;
+            top:0;
+            right:0;
+            left:0;
+            bottom:0;
+            margin:auto;
+            font-size:1vh;
+            overflow:auto;
+        }
+
+        #addProjectPage .close{
+            text-align: right;
+            margin-right: 5px;
+            background-color: #F8F8F8;
+        }
+
+        /*关闭按钮*/
+        #addProjectPage .close a {
+            text-decoration: none;
+            color: #2D2C3B;
+        }
+
+</style>
+
+{%endblock %}
+
+{% block content %}
+<h2 style="font-weight:bold;">项目管理</h2>
+<div class="table-responsive"></div>
+<div class="form-group">
+<label>项目名称</label>
+<input class="form-control" name="projectname" id="projectname_search" placeholder="请输入项目名称" style="width:300px;" value="{% if projectname %}{{projectname}}{% endif %}"><br>
+<button type="button" id="select" class="btn btn-primary" onclick="selectProject();">查询</button>
+<button type="button" id="add" class="btn btn-primary" onclick="showProjectPage();">新增</button>
+</div>
+    <table class="table table-bordered" style="margin:10px;table-layout:fixed;">
+        <thead style="background-color: #B8B8B8;">
+            <tr>
+                <th style="width:50px;">序号 </th>
+                <th>项目名称 <i class="fa fa-sort"></i></th>
+                <th>项目测试环境地址 <i class="fa fa-sort"></i></th>
+                <th>开发负责人 <i class="fa fa-sort"></i></th>
+                <th>测试负责人 </th>
+                <th>创建时间</th>
+                <th>修改时间</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+    <tbody>
+    {% if contacts %}
+        {% for p in contacts %}
+            <tr>
+                <td id="td1" style="text-align:center;">{{ contacts.start_index|add:forloop.counter|add:-1 }}</td>
+                <td class="td">{{p.projectname}}</td>
+                <td class="td">{{p.testurl}}</td>
+                <td class="td">{{p.devleader}}</td>
+                <td class="td">{{p.testleader}}</td>
+                <td class="td">{{p.createtime}}</td>
+                <td class="td">{{p.updatetime}}</td>
+                <td class="td"><a href="javascript:void(0)" onclick="showEditPage('{{p.projectid}}');">编辑</a> <a href="javascript:void(0)" onclick="deleteProject('{{p.projectname}}');">删除</a></td>
+            </tr>
+        {% endfor %}
+    {% endif %}
+    </tbody>
+
+</table>
+{% if not projects%}
+        <div style="text-align:center;">空</div>
+    {% endif %}
+<div id="popLayer"></div>
+<div id="addProjectPage">
+    <div class="content">
+        <div class="inner" style="margin:20px;">
+            <h3 id="h3" style="font-weight:bold;">新增项目</h3><br>
+            项目名称:<input class="form-control" id="projectname" name="projectname" placeholder="请输入项目名称" style="width:300px;" maxlength="30"><br>
+            项目测试环境:<input class="form-control" id="testurl" name="testurl" placeholder="请输入项目测试环境地址" style="width:300px;" maxlength="30"><br>
+            项目预发布环境:<input class="form-control" id="yfburl" name="yfburl" placeholder="请输入项目预发布环境地址" style="width:300px;" maxlength="30"><br>
+            项目开发环境:<input class="form-control" id="devurl" name="devurl" placeholder="请输入项目开发环境地址" style="width:300px;" maxlength="30"><br>
+            项目线上环境:<input class="form-control" id="xsurl" name="xsurl" placeholder="请输入项目线上环境地址" style="width:300px;" maxlength="30"><br>
+            项目开发负责人:<input class="form-control" id="devleader" name="devleader" placeholder="请输入项目开发负责人" style="width:300px;" maxlength="10"><br>
+            项目测试负责人:<input class="form-control" id="testleader" name="testleader" placeholder="请输入项目测试负责人" style="width:300px;" maxlength="10"><br>
+        <div style="text-align:center;margin:30px;">
+            <button type="button" id="close" class="btn btn-default btn-lg" onclick="closeBox();">取消</button>
+            <button type="button" id="add_btn" class="btn btn-primary btn-lg" onclick="addProject();">新增</button>
+        </div>
+    </div>
+    </div>
+</div>
+<div id="page" style="text-align:center;">
+<ul class="pagination">
+
+    {% if contacts.has_previous %}
+        <li><a href="selectProject?projectname={{projectname}}&page={{contacts.previous_page_number}}"><<</a></li>
+    {% else %}
+        <li class="disabled"><a href="#"><<</a></li>
+    {% endif %}
+
+{% for pg in contacts.paginator.page_range %}
+
+    {% if contacts.number == pg %}
+        <li class="active"><a href="/selectProject?projectname={{projectname}}&page={{pg}}">{{pg}}</a></li>
+    {% else %}
+    <li><a href="/selectProject?projectname={{projectname}}&page={{pg}}">{{pg}}</a></li>
+    {% endif %}
+{% endfor %}
+
+    {% if contacts.has_next %}
+        <li><a href="/selectProject?projectname={{projectname}}&page={{contacts.next_page_number}}">>></a></li>
+    {% else %}
+        <li class="disabled"><a href="#">>></a></li>
+    {% endif %}
+</ul>
+</div>
+
+
+<script>
+
+/*弹出添加项目界面*/
+function showProjectPage() {
+        $("#projectname").val("");
+        $("#projectname").removeAttr("readonly");
+        $("#testurl").val("");
+        $("#yfburl").val("");
+        $("#devurl").val("");
+        $("#xsurl").val("");
+        $("#devleader").val("");
+        $("#testleader").val("");
+        $("#h3").text("新增项目");
+        $("#add_btn").val("新增");
+        $("#add_btn").text("新增");
+        $("#add_btn").attr("onclick","addProject();")
+        $("#addProjectPage").fadeIn(300);
+        $("#popLayer").fadeIn(300);
+        $('body').css({
+　　      "overflow-x":"hidden",
+　　      "overflow-y":"hidden"
+        });
+
+
+
+}
+
+/*关闭添加项目页面*/
+function closeBox() {
+        $("#addProjectPage").fadeOut(300);
+        $("#popLayer").fadeOut(300);
+        $('body').css({
+　　      "overflow-x":"auto",
+　　      "overflow-y":"auto"
+        });
+}
+/*
+
+    新增项目
+
+    */
+function addProject(){
+    var projectname=$("#projectname").val();
+    var testurl=$("#testurl").val();
+    var yfburl=$("#yfburl").val();
+    var devurl=$("#devurl").val();
+    var xsurl=$("#xsurl").val();
+    var devleader=$("#devleader").val();
+    var testleader=$("#testleader").val();
+
+
+    $.ajax(
+        {
+            type:"POST",
+            DataType:"json",
+            contentType:"application/json;charset=utf-8",
+            url:"/addProject/",
+            data:JSON.stringify({"projectname":projectname,"testurl":testurl,"yfburl":yfburl,"devurl":devurl,"xsurl":xsurl,"devleader":devleader,"testleader":testleader}),
+            success:function(result){
+                console.log(result);
+                console.log(result.code)
+                if(result.code==100000){
+                    showSuccessMsg("添加成功！！");
+                    setTimeout(function(){
+                        window.location.href="/selectProject";
+                    },1000);
+                }else{
+                    showFailMsg(result.msg);
+                }
+            }
+        }
+    );
+}
+
+/*
+    查询项目
+
+    */
+function selectProject(){
+    var projectname=$("#projectname_search").val();
+    window.location.href="/selectProject?projectname="+projectname;
+}
+
+
+/*
+    删除项目
+*/
+function deleteProject(projectname){
+
+    var r = confirm("是否要删除该记录");
+    if(r){
+        $.ajax(
+        {
+            type:"POST",
+            DataType:"json",
+            contentType:"application/json;charset=utf-8",
+            url:"/deleteProject/",
+            data:JSON.stringify({"projectname":projectname}),
+            success:function(result){
+                console.log(result);
+                console.log(result.code)
+                if(result.code=="100000"){
+                    showSuccessMsg("删除成功！");
+                    setTimeout(function(){
+                        window.location.href="/selectProject";
+                        },1000)
+                    }else{
+                        showFailMsg("请先删除项目里所有模块！")
+                        <!--setTimeout(function(){-->
+                            <!--window.location.reload();-->
+                        <!--},1000)-->
+                    }
+
+
+          }
+        }
+    );
+
+    }
+
+}
+
+/*
+    展示编辑界面
+*/
+function showEditPage(projectid){
+
+    $("#addProjectPage").fadeIn(300);
+    $("#popLayer").fadeIn(300);
+    $("#h3").text("编辑项目");
+    $("#add_btn").text("保存");
+    $("#add_btn").val("保存");
+    $("#add_btn").attr("onclick","editProject('"+projectid+"');")
+    console.log(projectname);
+
+
+    $.ajax(
+        {
+            type:"GET",
+            DataType:"json",
+            contentType:"application/x-www-form-urlencoded;charset=utf-8",
+            url:"/getProjectMsg/",
+            data:{"projectid":projectid},
+            success:function(result){
+                console.log(result);
+                console.log(result.data[0].fields)
+                $("#projectname").val(result.data[0].fields.projectname);
+                $("#testurl").val(result.data[0].fields.testurl);
+                $("#yfburl").val(result.data[0].fields.yfburl);
+                $("#devurl").val(result.data[0].fields.devurl);
+                $("#xsurl").val(result.data[0].fields.xsurl);
+                $("#devleader").val(result.data[0].fields.devleader);
+                $("#testleader").val(result.data[0].fields.testleader);
+            }
+
+        }
+    );
+    $('body').css({
+　　      "overflow-x":"hidden",
+　　      "overflow-y":"hidden"
+        });
+}
+
+function editProject(projectid){
+
+    projectname=$("#projectname").val();
+    testurl=$("#testurl").val();
+    yfburl=$("#yfburl").val();
+    devurl=$("#devurl").val();
+    xsurl=$("#xsurl").val();
+    devleader=$("#devleader").val();
+    testleader=$("#testleader").val();
+
+    $.ajax(
+        {
+            type:"POST",
+            DataType:"json",
+            contentType:"application/json;charset=utf-8",
+            url:"/editProject/",
+            data:JSON.stringify({"projectid":projectid,"projectname":projectname,"testurl":testurl,"yfburl":yfburl,"devurl":devurl,"xsurl":xsurl,"devleader":devleader,"testleader":testleader}),
+            success:function(result){
+                if(result.code==100000){
+                    showSuccessMsg("保存成功");
+                    closeBox();
+                    setTimeout(function(){
+                            window.location.reload();
+                        },1000)
+                }else{
+                    showFailMsg("保存失败，后台出错啦~~");
+                }
+
+            }
+
+        }
+    );
+
+
+}
+
+
+
+</script>
+
+{% endblock %}

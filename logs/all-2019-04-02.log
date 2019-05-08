@@ -1,0 +1,5 @@
+[2019-04-02 18:56:44,617] [base.py:170] [base:get_response] [WARNING]- Not Found: /favicon.ico
+[2019-04-02 19:00:37,571] [base.py:170] [base:get_response] [WARNING]- Not Found: /case/
+[2019-04-02 19:03:09,071] [base.py:170] [base:get_response] [WARNING]- Not Found: /case/
+[2019-04-02 19:10:13,865] [base.py:170] [base:get_response] [WARNING]- Not Found: /case/
+[2019-04-03 08:54:19,156] [base.py:170] [base:get_response] [WARNING]- Not Found: /case/

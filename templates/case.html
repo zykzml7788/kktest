@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+{% block title %}接口管理{% endblock %}
+{% load static %}
+{% block css %}
+<style type="text/css">
+
+    .search{
+
+        margin:0.5% 0.5%;
+        float:left;
+    }
+
+    .td{
+        width:345px;
+        height:20px;
+        font-size:0.1em;
+        word-break:keep-all;/* 不换行 */
+        white-space:nowrap;/* 不换行 */
+        overflow:hidden;/* 内容超出宽度时隐藏超出部分的内容 */
+        text-overflow:ellipsis;/* 当对象内文本溢出时显示省略标记(...) ；需与overflow:hidden;一起使用。*/
+    }
+
+    /*背景层*/
+        #popLayer {
+            overflow-y: hidden;
+            display: none;
+            background-color: #B3B3B3;
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 10;
+            -moz-opacity: 0.8;
+            opacity:.80;
+            filter: alpha(opacity=80);/* 只支持IE6、7、8、9 */
+        }
+
+        /*弹出层*/
+        #addProjectPage {
+            border-radius:25px;
+            display: none;
+            background-color: #FFFFFF;
+            z-index: 11;
+            width: 500px;
+            height: 650px;
+            position:fixed;
+            top:0;
+            right:0;
+            left:0;
+            bottom:0;
+            margin:auto;
+            font-size:1vh;
+            overflow:auto;
+        }
+
+        #addProjectPage .close{
+            text-align: right;
+            margin-right: 5px;
+            background-color: #F8F8F8;
+        }
+</style>
+{% endblock %}
+
+{% block content %}
+<h2 style="font-weight:bold;">用例管理</h2>
+<!--<div class="table-responsive"></div>-->
+<div class="form-group">
+<div class="search" >
+    <label for="case_select">接口地址</label>
+    <div style="white-space:nowrap;">
+    <select id="case_select" class="selectpicker show-tick form-control" data-live-search="true">
+    {% if apiid %}
+        <option>请选择</option>
+    {% else %}
+        <option selected="selected">请选择</option>
+    {% endif %}
+
+    {% for api in apis %}
+        {% if apiid == api.apiid %}
+        <option value="{{api.apiid}}" selected="selected">{{api.url}}</option>
+        {% else %}
+        <option value="{{api.apiid}}">{{api.url}}</option>
+        {% endif %}
+
+        {% endfor %}
+</select>
+        <button type="button" id="select" class="btn btn-primary" onclick="selectCase();">查询</button>
+    <button type="button" id="add" class="btn btn-primary" onclick="showApiPage();" style="white-space:nowrap;">新增</button>
+</div>
+</div>
+    <table class="table table-bordered" style="margin:10px;table-layout:fixed;">
+        <thead style="background-color:#B8B8B8;">
+            <tr>
+                <th style="width:50px;">序号</th>
+                <th>用例名称</th>
+                <th>所属接口</th>
+                <th>请求方式</th>
+                <th>编写人</th>
+                <th>更新时间</th>
+                <th>创建时间</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+    <tbody>
+    {% if contacts %}
+        {% for i in contacts %}
+            <tr>
+                <td id="td1" style="text-align:center;">{{ contacts.start_index|add:forloop.counter|add:-1 }}</td>
+                <td class="td">{{i.name}}</td>
+                <td class="td">{{i.api.url}}</td>
+                <td class="td">{{i.method}}</td>
+                <td class="td">{{i.person}}</td>
+                <td class="td">{{i.updatetime}}</td>
+                <td class="td">{{i.createtime}}</td>
+                <td class="td"><a href="javascript:void(0)" onclick="showEditPage('{{i.caseid}}','{{i.project.projectname}}','{{i.module.modulename}}');">编辑</a> <a href="javascript:void(0)" onclick="deleteApi('{{i.apiid}}');">删除</a></td>
+            </tr>
+        {% endfor %}
+    {% endif %}
+    </tbody>
+
+</table>
+{% if not contacts%}
+        <div style="text-align:center;">空</div>
+    {% endif %}
+
+<div id="page" style="text-align:center;">
+<ul class="pagination">
+
+    {% if contacts.has_previous %}
+        <li><a href="/selectApi?projectname={{projectname}}&modulename={{modulename}}&moduleid={{moduleid}}&apimethod={{method}}&apiname={{name}}&apiurl={{url}}&page={{contacts.previous_page_number}}"><<</a></li>
+    {% else %}
+        <li class="disabled"><a href="#"><<</a></li>
+    {% endif %}
+
+{% for pg in contacts.paginator.page_range %}
+
+    {% if contacts.number == pg %}
+        <li class="active"><a href="/selectApi?projectname={{projectname}}&modulename={{modulename}}&moduleid={{moduleid}}&apimethod={{method}}&apiname={{name}}&apiurl={{url}}&page={{pg}}">{{pg}}</a></li>
+    {% elif pg %}
+    <li><a href="/selectApi?projectname={{projectname}}&modulename={{modulename}}&moduleid={{moduleid}}&apimethod={{method}}&apiname={{name}}&apiurl={{url}}&page={{pg}}">{{pg}}</a></li>
+    {% else %}
+    <li><a href="javascript:void(0);">1</a></li>
+    {% endif %}
+{% endfor %}
+
+    {% if contacts.has_next %}
+        <li><a href="/selectApi?projectname={{projectname}}&modulename={{modulename}}&moduleid={{moduleid}}&apimethod={{method}}&apiname={{name}}&apiurl={{url}}&page={{contacts.next_page_number}}">>></a></li>
+    {% else %}
+        <li class="disabled"><a href="#">>></a></li>
+    {% endif %}
+</ul>
+</div>
+</div>
+<script>
+
+    function selectCase(){
+        var apiid = $("#case_select").val();
+        if(apiid!='请选择'){
+            window.location.href="/case?apiid="+apiid;
+        }else{
+            window.location.href="/case";
+        }
+
+    }
+
+
+
+
+
+</script>
+{% endblock %}

@@ -1,0 +1,503 @@
+{% extends "base.html" %}
+{% block title %}接口管理{% endblock %}
+{% load static %}
+{% block css %}
+<style type="text/css">
+
+    .search{
+
+        margin:0.5% 0.5%;
+        float:left;
+    }
+
+    .td{
+        width:345px;
+        height:20px;
+        font-size:0.1em;
+        word-break:keep-all;/* 不换行 */
+        white-space:nowrap;/* 不换行 */
+        overflow:hidden;/* 内容超出宽度时隐藏超出部分的内容 */
+        text-overflow:ellipsis;/* 当对象内文本溢出时显示省略标记(...) ；需与overflow:hidden;一起使用。*/
+    }
+
+    /*背景层*/
+        #popLayer {
+            overflow-y: hidden;
+            display: none;
+            background-color: #B3B3B3;
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 10;
+            -moz-opacity: 0.8;
+            opacity:.80;
+            filter: alpha(opacity=80);/* 只支持IE6、7、8、9 */
+        }
+
+        /*弹出层*/
+        #addProjectPage {
+            border-radius:25px;
+            display: none;
+            background-color: #FFFFFF;
+            z-index: 11;
+            width: 500px;
+            height: 650px;
+            position:fixed;
+            top:0;
+            right:0;
+            left:0;
+            bottom:0;
+            margin:auto;
+            font-size:1vh;
+            overflow:auto;
+        }
+
+        #addProjectPage .close{
+            text-align: right;
+            margin-right: 5px;
+            background-color: #F8F8F8;
+        }
+</style>
+{% endblock %}
+
+{% block content %}
+<h2 style="font-weight:bold;">接口管理</h2>
+<!--<div class="table-responsive"></div>-->
+<div class="form-group">
+<div class="search">
+    <label>项目名称</label>
+    <select class="form-control" id="projectname_select" style="width:200px;margin:0 2% 5px 0;">
+        {% if projectname %}
+        <option  value="请选择">请选择</option>
+        {% else %}
+        <option  value="请选择" selected="selected">请选择</option>
+        {% endif %}
+
+    {% for p in projects %}
+        {% if projectname == p.projectname %}
+        <option value="{{p.projectname}}" selected="selected">{{p.projectname}}</option>
+        {% else %}
+        <option value="{{p.projectname}}">{{p.projectname}}</option>
+        {% endif %}
+    {% endfor %}
+    </select>
+</div>
+<div class="search">
+    <label>模块名称</label>
+    <select class="form-control" id="modulename_select" style="width:200px;margin:0 2% 5px 0;">
+        {% if modules %}
+        <option  value="请选择">请选择</option>
+        {% for m in modules %}
+            {% if moduleid == m.moduleid %}
+            <option  value="{{m.moduleid}}"  selected="selected">{{m.modulename}}</option>
+            {% else %}
+            <option  value="{{m.moduleid}}">{{m.modulename}}</option>
+            {% endif %}
+        {% endfor %}
+
+        {% else %}
+        <option  value="请选择" selected="selected">请选择</option>
+        {% endif %}
+    </select>
+</div>
+<div class="search">
+    <label>请求方式</label>
+    <select class="form-control" id="apimethod_select" style="width:200px;margin:0 2% 5px 0;">
+    {% if not method %}
+        <option selected="selected" value="请选择">请选择</option>
+        <option value="GET">GET</option>
+        <option value="POST">POST</option>
+    {% elif method == 'GET' %}
+        <option value="请选择">请选择</option>
+        <option value="GET" selected="selected">GET</option>
+        <option value="POST">POST</option>
+    {% else %}
+        <option value="请选择">请选择</option>
+        <option value="GET">GET</option>
+        <option value="POST"  selected="selected">POST</option>
+    {% endif %}
+
+
+
+    </select>
+</div>
+
+</div>
+<div style="clear:both;">
+    <div class="search">
+    <label>接口名称</label>
+    <input class="form-control" name="apiname" id="apiname_search" placeholder="请输入接口名称" style="width:300px;" value="{% if name %}{{name}}{% endif %}">
+    </div>
+    <div class="search">
+    <label>接口地址</label>
+    <input class="form-control" name="apiname" id="apiurl_search" placeholder="请输入接口地址" style="width:300px;" value="{% if url %}{{url}}{% endif %}">
+    </div>
+    <div class="search" style="margin-top:2.5em;">
+    <button type="button" id="select" class="btn btn-primary" onclick="selectApi();" >查询</button>
+    <button type="button" id="add" class="btn btn-primary" onclick="showApiPage();">新增</button>
+    </div>
+</div>
+
+
+
+
+
+
+
+    <table class="table table-bordered" style="margin:10px;table-layout:fixed;">
+        <thead style="background-color:#B8B8B8;">
+            <tr>
+                <th style="width:50px;">序号</th>
+                <th>接口名称</th>
+                <th>接口地址</th>
+                <th>请求方式</th>
+                <th>项目名称</th>
+                <th>模块名称</th>
+                <th>用例数</th>
+                <th>测试负责人</th>
+                <th>更新时间</th>
+                <th>创建时间</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+    <tbody>
+    {% if contacts %}
+        {% for i in contacts %}
+            <tr>
+                <td id="td1" style="text-align:center;">{{ contacts.start_index|add:forloop.counter|add:-1 }}</td>
+                <td class="td">{{i.name}}</td>
+                <td class="td">{{i.url}}</td>
+                <td class="td">{{i.method}}</td>
+                <td class="td">{{i.project.projectname}}</td>
+                <td class="td">{{i.module.modulename}}</td>
+                <td class="td">{{i.casenum}}</td>
+                <td class="td">{{i.testleader}}</td>
+                <td class="td">{{i.updatetime}}</td>
+                <td class="td">{{i.createtime}}</td>
+                <td class="td"><a href="javascript:void(0)" onclick="showEditPage('{{i.apiid}}','{{i.project.projectname}}','{{i.module.modulename}}');">编辑</a> <a href="javascript:void(0)" onclick="deleteApi('{{i.apiid}}');">删除</a></td>
+            </tr>
+        {% endfor %}
+    {% endif %}
+    </tbody>
+
+</table>
+{% if not contacts%}
+        <div style="text-align:center;">空</div>
+    {% endif %}
+<div id="popLayer"></div>
+<div id="addProjectPage">
+    <div class="content">
+        <div class="inner" style="margin:20px;">
+            <h3 id="h3" style="font-weight:bold;">新增接口</h3><br>
+            所属项目:<input class="form-control" id="projectname" name="projectname"  style="width:300px;" maxlength="30" readonly="readonly"><br>
+            所属模块:<input class="form-control" id="modulename" name="modulename"  style="width:300px;" maxlength="30" readonly="readonly"><br>
+            接口名称:<input class="form-control" id="name" name="name" placeholder="请输入接口名称" style="width:300px;" maxlength="20"><br>
+            请求方式:<select class="form-control" id="method" style="width:300px;margin:0 2% 5px 0;">
+            <option selected="selected">GET</option>
+            <option >POST</option>
+            </select><br>
+            接口地址:<input class="form-control" id="url" name="url" placeholder="请输入接口地址" style="width:300px;" maxlength="50"><br>
+            测试负责人:<input class="form-control" id="testleader" name="testleader" placeholder="请输入测试负责人" style="width:300px;" maxlength="10"><br>
+            <div style="text-align:center;margin:30px;">
+            <button type="button" id="close" class="btn btn-default btn-lg" onclick="closeBox();">取消</button>
+            <button type="button" id="add_btn" class="btn btn-primary btn-lg" onclick="addApi();">新增</button>
+        </div>
+    </div>
+    </div>
+</div>
+<div id="page" style="text-align:center;">
+<ul class="pagination">
+
+    {% if contacts.has_previous %}
+        <li><a href="/selectApi?projectname={{projectname}}&modulename={{modulename}}&moduleid={{moduleid}}&apimethod={{method}}&apiname={{name}}&apiurl={{url}}&page={{contacts.previous_page_number}}"><<</a></li>
+    {% else %}
+        <li class="disabled"><a href="#"><<</a></li>
+    {% endif %}
+
+{% for pg in contacts.paginator.page_range %}
+
+    {% if contacts.number == pg %}
+        <li class="active"><a href="/selectApi?projectname={{projectname}}&modulename={{modulename}}&moduleid={{moduleid}}&apimethod={{method}}&apiname={{name}}&apiurl={{url}}&page={{pg}}">{{pg}}</a></li>
+    {% elif pg %}
+    <li><a href="/selectApi?projectname={{projectname}}&modulename={{modulename}}&moduleid={{moduleid}}&apimethod={{method}}&apiname={{name}}&apiurl={{url}}&page={{pg}}">{{pg}}</a></li>
+    {% else %}
+    <li><a href="javascript:void(0);">1</a></li>
+    {% endif %}
+{% endfor %}
+
+    {% if contacts.has_next %}
+        <li><a href="/selectApi?projectname={{projectname}}&modulename={{modulename}}&moduleid={{moduleid}}&apimethod={{method}}&apiname={{name}}&apiurl={{url}}&page={{contacts.next_page_number}}">>></a></li>
+    {% else %}
+        <li class="disabled"><a href="#">>></a></li>
+    {% endif %}
+</ul>
+</div>
+
+    <script>
+
+    /*
+        页面加载初始化函数
+
+    */
+$(document).ready(function(){
+
+});
+
+/*
+    api项目、模块二级联动
+
+*/
+
+$("#projectname_select").change(function() {
+      var projectname = $(this).val();
+      $.ajax({
+        url: '/getModulesByProjectname/',
+        data:{"projectname":$(this).val()},
+        type: 'GET',
+        dataType: 'json',
+        success: function (result) {
+            console.log(result);
+            if(result.code==100000){
+            var content='<option selected="selected" value="请选择">请选择</option>';
+            $.each(result.data, function(i, item){
+                  content+='<option value='+item.pk+'>'+item.fields.modulename+'</option>'
+                });
+            $('#modulename_select').html(content);
+            }
+         },
+
+
+      });
+      if(projectname == '请选择'){
+          $('#modulename_select').html('<option selected="selected" value="请选择">请选择</option>');
+      }
+    });
+
+
+
+/*弹出添加界面*/
+function showApiPage() {
+        var projectname=$("#projectname_select").val();
+        var modulename=$("#modulename_select option:selected").text();
+        if(projectname=="请选择" || modulename=="请选择"){
+            showFailMsg("请选择项目和模块后新增！");
+        }else{
+
+            $("#projectname").val(projectname);
+            $("#modulename").val(modulename);
+            $("#devleader").val("");
+            $("#name").val("");
+            $("#url").val("");
+            $("#testleader").val("");
+            $("#h3").text("新增接口");
+            $("#add_btn").val("新增");
+            $("#add_btn").text("新增");
+            $("#add_btn").attr("onclick","addApi();")
+            $("#addProjectPage").fadeIn(300);
+            $("#popLayer").fadeIn(300);
+            $('body').css({
+    　　      "overflow-x":"hidden",
+    　　      "overflow-y":"hidden"
+            });
+        }
+
+
+
+
+}
+
+/*关闭页面*/
+function closeBox() {
+        $("#addProjectPage").fadeOut(300);
+        $("#popLayer").fadeOut(300);
+        $('body').css({
+　　      "overflow-x":"auto",
+　　      "overflow-y":"auto"
+        });
+}
+/*
+
+    新增接口
+
+    */
+function addApi(){
+
+    var moduleid=$("#modulename_select option:selected").val();
+    var apiname=$("#name").val();
+    var apimethod=$("#method").val();
+    var apiurl=$("#url").val();
+    var testleader=$("#testleader").val();
+
+
+
+    $.ajax(
+        {
+            type:"POST",
+            DataType:"json",
+            contentType:"application/json;charset=utf-8",
+            url:"/addApi/",
+            data:JSON.stringify({"moduleid":moduleid,"apiname":apiname,"apimethod":apimethod,"apiurl":apiurl,"testleader":testleader}),
+            success:function(result){
+                console.log(result);
+                console.log(result.code)
+                if(result.code=="100000"){
+                    showSuccessMsg("新增成功！！");
+                    setTimeout(function(){
+                        window.location.reload();
+                    },1000);
+                }else if(result.code=="100050"){
+                    showFailMsg("该接口名称已存在！");
+                }else if(result.code=="100051"){
+                    showFailMsg("该接口地址已存在！");
+                }else{
+                    showFailMsg("操作失败");
+                }
+            }
+        }
+    );
+}
+
+/*
+    查询项目
+
+    */
+function selectApi(){
+
+    var projectname=$("#projectname_select").val();
+    var moduleid=$("#modulename_select").val();
+    var apimethod=$("#apimethod_select").val();
+    var apiname=$("#apiname_search").val();
+    var apiurl=$("#apiurl_search").val();
+    if(projectname=='请选择'){projectname='';}
+    if(moduleid=='请选择'){moduleid='';}
+    if(apimethod=='请选择'){apimethod='';}
+    window.location.href="/selectApi?projectname="+projectname+"&moduleid="+moduleid+"&apimethod="+apimethod+"&apiname="+apiname+"&apiurl="+apiurl;
+
+}
+
+
+/*
+    删除接口
+*/
+function deleteApi(apiid){
+
+    var r = confirm("是否要删除该记录");
+    if(r){
+        $.ajax(
+        {
+            type:"POST",
+            DataType:"json",
+            contentType:"application/json;charset=utf-8",
+            url:"/deleteApi/",
+            data:JSON.stringify({"apiid":apiid}),
+            success:function(result){
+                console.log(result);
+                console.log(result.code)
+                if(result.code=="100000"){
+                    showSuccessMsg("删除成功！")
+                    setTimeout(function(){
+                            window.location.reload();
+                        },1000);
+                    }else if(result.code=="100001"){
+                        showFailMsg("接口名称不允许为空！");
+                    }else{
+                        showFailMsg("删除失败！后台报错啦~~");
+                        setTimeout(function(){
+                            window.location.reload();
+                        },1000);
+
+                    }
+
+
+          }
+        }
+    );
+    }
+
+}
+
+/*
+    展示编辑界面
+*/
+function showEditPage(apiid,projectname,modulename){
+
+    $("#addProjectPage").fadeIn(300);
+    $("#popLayer").fadeIn(300);
+    $("#projectname").attr("readonly","readonly");
+    $("#modulename").attr("readonly","readonly");
+    $("#h3").text("编辑接口");
+    $("#add_btn").text("保存");
+    $("#add_btn").val("保存");
+    $("#add_btn").attr("onclick","updateApi('"+apiid+"');")
+
+
+    $.ajax(
+        {
+            type:"GET",
+            DataType:"json",
+            contentType:"application/x-www-form-urlencoded;charset=utf-8",
+            url:"/getApiMsg/",
+            data:{"apiid":apiid},
+            success:function(result){
+                console.log(result);
+                console.log(result.data);
+                $("#projectname").val(projectname);
+                $("#modulename").val(modulename);
+                $("#method").val(result.data[0].fields.method);
+                $("#name").val(result.data[0].fields.name);
+                $("#url").val(result.data[0].fields.url);
+                $("#testleader").val(result.data[0].fields.testleader);
+            }
+
+        }
+    );
+    $('body').css({
+　　      "overflow-x":"hidden",
+　　      "overflow-y":"hidden"
+        });
+}
+
+/*编辑模块*/
+function updateApi(apiid){
+
+    var apiname=$("#name").val();
+    var apimethod=$("#method").val();
+    var apiurl=$("#url").val();
+    var testleader=$("#testleader").val();
+    if(!apiname || !apimethod || !apiurl || !testleader){
+        showFailMsg("各项参数不允许为空！");
+    }else{
+        $.ajax(
+            {
+                type:"POST",
+                DataType:"json",
+                contentType:"application/json;charset=utf-8",
+                url:"/updateApi/",
+                data:JSON.stringify({"apiid":apiid,"apiname":apiname,"apimethod":apimethod,"apiurl":apiurl,"testleader":testleader}),
+                success:function(result){
+                    console.log(result);
+                    if(result.code==100000){
+                        showSuccessMsg("保存成功");
+                        closeBox();
+                        window.location.reload();
+                    }else{
+                        showFailMsg("操作失败");
+                    }
+
+                }
+
+            }
+        );
+    }
+
+
+
+}
+
+
+
+
+</script>
+{% endblock %}

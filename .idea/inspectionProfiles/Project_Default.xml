@@ -1,0 +1,16 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="PyUnresolvedReferencesInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredIdentifiers">
+        <list>
+          <option value="outeruser.models.User.objects" />
+          <option value="outeruser.models.Project.objects" />
+          <option value="outeruser.models.Module.objects" />
+          <option value="outeruser.models.Api.objects" />
+          <option value="outeruser.models.Case.objects" />
+        </list>
+      </option>
+    </inspection_tool>
+  </profile>
+</component>
